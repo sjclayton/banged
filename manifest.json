@@ -1,0 +1,83 @@
+{
+  "manifest_version": 2,
+  "name": "Bang Search",
+  "version": "1.0.0",
+  "description": "Type !bang query in the address bar to search inside other websites. Customizable, favourites, import/export.",
+  "author": "CuriousMind",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bang-search@CuriousMind",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "downloads",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [
+      "defaults.js",
+      "search.js",
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "defaults.js",
+        "search.js",
+        "icons.js",
+        "ui.js",
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ],
+  "commands": {
+    "open-bang": {
+      "suggested_key": {
+        "default": "Alt+1"
+      },
+      "description": "Open the bang search bar"
+    }
+  },
+  "omnibox": {
+    "keyword": "!"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "browser_action": {
+    "default_title": "Bang Search",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    }
+  }
+}

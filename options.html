@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bang Search</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">!</div>
+        <div>
+          <h1>Bang Search</h1>
+          <p class="sub">Type <code>!yt</code>, <code>!gh</code> and friends to search inside any website.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="export">Export config</button>
+        <button id="exportPolicy">Export for Firefox search</button>
+        <button id="import">Import config</button>
+        <button id="reset" class="danger">Reset</button>
+        <input type="file" id="file" accept=".json,application/json" hidden>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Preferences</h2>
+      <div class="grid">
+        <div class="field">
+          <span class="label">Appearance</span>
+          <div class="seg" id="theme">
+            <button type="button" data-value="system">System</button>
+            <button type="button" data-value="light">Light</button>
+            <button type="button" data-value="dark">Dark</button>
+          </div>
+        </div>
+        <label class="field">
+          <span class="label">Open results in</span>
+          <select id="openIn">
+            <option value="current">Same tab</option>
+            <option value="tab">New tab</option>
+            <option value="background">Background tab</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="label">Fallback bang</span>
+          <input type="text" id="fallback" placeholder="g">
+        </label>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <span class="label">Trigger key</span>
+          <div class="keybox">
+            <input type="text" id="triggerKey" readonly placeholder="Click, then press a key">
+            <button type="button" id="triggerReset">Reset</button>
+          </div>
+          <p class="hint tight">Opens the bar on a page. Any symbol that isn't a letter, number or space, e.g. <kbd>!</kbd> <kbd>`</kbd> <kbd>\</kbd> <kbd>;</kbd> <kbd>~</kbd></p>
+        </div>
+        <div class="field">
+          <span class="label">Shortcut for pages where the trigger key can't work</span>
+          <div class="keybox">
+            <input type="text" id="popupShortcut" readonly placeholder="Click, then press a combination">
+            <button type="button" id="shortcutReset">Reset</button>
+          </div>
+          <p class="hint tight">Needs <kbd>Ctrl</kbd> or <kbd>Alt</kbd> plus a key. Opens the bar on Firefox's own pages (new tab, about:…), where it appears as the toolbar popup.</p>
+        </div>
+      </div>
+      <p id="keyError" class="error"></p>
+      <label class="check">
+        <input type="checkbox" id="bangKey">
+        <span>Press <kbd class="trig">!</kbd> on any page (outside text fields) to open the bang bar</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="icons">
+        <span>Show each site's icon in the list (icons are downloaded from the site, or Google's icon service if the site has none, and kept on this computer)</span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="bangInFields">
+        <span>Also open it when <kbd class="trig">!</kbd> is typed into an <em>empty</em> text field (e.g. an auto-focused search box)</span>
+      </label>
+      <p class="hint">
+        The bar also opens with the shortcut above and from the toolbar button. The trigger key can't work on
+        Firefox's own pages, so use the shortcut or toolbar button there.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Add or edit a bang</h2>
+      <form id="form">
+        <input type="hidden" id="editing">
+        <input type="text" id="bang" placeholder="Main bang (e.g. yt)" required pattern="\S+">
+        <input type="text" id="aliases" placeholder="More shortcuts, comma separated (youtube, ytb)">
+        <input type="text" id="name" placeholder="Name (e.g. YouTube)" required>
+        <input type="text" id="url" placeholder="https://site.com/search?q={{{s}}}" required>
+        <div class="form-actions">
+          <label class="inline"><input type="checkbox" id="fav"> Favourite</label>
+          <button type="submit" id="save">Save</button>
+          <button type="button" id="cancel" hidden>Cancel</button>
+        </div>
+      </form>
+      <p class="hint">Use <code>{{{s}}}</code> as the placeholder for the URL-encoded query. Any shortcut for the same site opens the same search.</p>
+      <p id="error" class="error"></p>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Your bangs</h2>
+        <input type="search" id="filter" placeholder="Filter bangs…">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th></th><th>Shortcuts</th><th>Name</th><th>URL</th><th></th></tr>
+          </thead>
+          <tbody id="list"></tbody>
+        </table>
+      </div>
+      <p id="count" class="hint"></p>
+    </section>
+
+    <section class="card">
+      <h2>Share code</h2>
+      <p class="hint first">Create a code that contains your bangs and all your settings (trigger key, shortcut, theme and the rest). Anyone can type or paste it below to get the exact same setup.</p>
+      <textarea id="codeOut" rows="3" readonly placeholder="Press Generate code to create your code"></textarea>
+      <div class="row">
+        <button type="button" id="genCode">Generate code</button>
+        <button type="button" id="copyCode">Copy</button>
+      </div>
+      <label class="field spaced">
+        <span class="label">Enter a code</span>
+        <textarea id="codeIn" rows="3" placeholder="Type or paste a share code here"></textarea>
+      </label>
+      <div class="row">
+        <select id="importMode">
+          <option value="replace">Replace everything (exact copy)</option>
+          <option value="merge">Merge bangs (keep my settings)</option>
+        </select>
+        <button type="button" id="loadCode" class="primary">Load code</button>
+      </div>
+      <p id="codeStatus" class="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Saved configurations</h2>
+      <p class="hint first">Keep setups on this computer so you can switch between them any time. <strong>Apply</strong> replaces your bangs and settings with that setup; <strong>Merge</strong> adds its bangs to yours and keeps your settings. Helium Browser Bangs comes with the extension.</p>
+      <div class="row first">
+        <input type="text" id="libName" placeholder="Name (optional)">
+        <button type="button" id="libSave">Save current setup</button>
+        <button type="button" id="libRestore">Restore built-in</button>
+      </div>
+      <label class="check spaced">
+        <input type="checkbox" id="autoSave" checked>
+        <span>Also save configurations I import (from a code or a file) to this list</span>
+      </label>
+      <ul id="library" class="library"></ul>
+      <p id="libStatus" class="status"></p>
+    </section>
+  </div>
+
+  <script src="defaults.js"></script>
+  <script src="search.js"></script>
+  <script src="share.js"></script>
+  <script src="presets.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
